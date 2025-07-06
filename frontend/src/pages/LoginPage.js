@@ -1,53 +1,42 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import './PageStyles.css';
 import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/login', {
-        username,
-        password,
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
-
-      if (res.data.success) {
-        navigate('/vote');
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        setMessage('✅ Login successful!');
+        setTimeout(() => navigate('/vote'), 1000);
       } else {
-        setError(res.data.message || 'Login failed');
+        setMessage(data.error || '❌ Login failed');
       }
     } catch (err) {
-      setError('Server error or invalid credentials');
+      setMessage('❌ Server error');
     }
   };
 
   return (
-    <div className="page-container">
-      <h2>Login to Online Voting System</h2>
-      <form onSubmit={handleLogin} className="form-box">
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          required
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          required
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error && <p style={{ color: 'red', fontSize: '0.9rem' }}>{error}</p>}
+    <div style={{ padding: '2rem' }}>
+      <h2>Login to Vote</h2>
+      <form onSubmit={handleLogin}>
+        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required /><br />
+        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required /><br />
         <button type="submit">Login</button>
       </form>
+      <p>{message}</p>
     </div>
   );
 }

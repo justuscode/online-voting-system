@@ -1,0 +1,10 @@
+backend/server.js
+backend/config/db.js
+backend/controllers/voteController.js
+backend/controllers/authController.js
+backend/models/Voter.js
+backend/.env
+backend/routes/vote.js
+backend/routes/auth.js
+backend/package.json
+backend/package-lock.json
