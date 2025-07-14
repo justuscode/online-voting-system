@@ -20,11 +20,16 @@ const voterSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    match: /^[0-9]{8,10}$/  // ✅ ensures 8–10 digit numbers only
+    match: /^[0-9]{8,10}$/ // ✅ Enforce 8–10 digit numeric voter ID
   },
   hasVoted: {
     type: Boolean,
     default: false
+  },
+  role: {
+    type: String,
+    enum: ['voter', 'admin'],
+    default: 'voter'
   },
   createdAt: {
     type: Date,

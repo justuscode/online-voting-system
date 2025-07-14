@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
+import adminRoutes from './routes/admin.js';
 import voteRoutes from './routes/vote.js';
 
 dotenv.config();
@@ -19,6 +20,8 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/vote', voteRoutes);
+app.use('/api/admin', adminRoutes);
+
 
 // Start server
 const PORT = process.env.PORT || 5000;

@@ -17,50 +17,51 @@ function VotePage() {
       return;
     }
 
-    fetch('http://localhost:5000/api/vote/candidates', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          setMessage(data.error);
-          return;
+    const fetchData = async () => {
+      try {
+        const res1 = await fetch('http://localhost:5000/api/vote/candidates', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const candidatesData = await res1.json();
+        if (candidatesData.error) {
+          setMessage(candidatesData.error);
+        } else {
+          setCandidates(candidatesData);
         }
-        setCandidates(data);
-      });
 
-    // Check if user has already voted
-    fetch('http://localhost:5000/api/auth/me', {
-      headers: {
-        Authorization: `Bearer ${token}`
+        const res2 = await fetch('http://localhost:5000/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const userData = await res2.json();
+        setHasVoted(userData.hasVoted);
+      } catch (err) {
+        setMessage('❌ Failed to load data.');
       }
-    })
-      .then(res => res.json())
-      .then(data => {
-        setHasVoted(data.hasVoted);
-      });
+    };
+
+    fetchData();
   }, [token, navigate]);
 
-  const handleVote = (id) => {
-    fetch('http://localhost:5000/api/vote/cast', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ candidateId: id })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.message) {
-          setMessage(data.message);
-          setHasVoted(true);
-        } else {
-          setMessage(data.error || 'Something went wrong');
-        }
+  const handleVote = async (id) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/vote/cast', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ candidateId: id })
       });
+      const data = await res.json();
+      if (data.message) {
+        setMessage(data.message);
+        setHasVoted(true);
+      } else {
+        setMessage(data.error || 'Something went wrong');
+      }
+    } catch {
+      setMessage('❌ Voting failed');
+    }
   };
 
   const handleLogout = () => {
@@ -69,23 +70,48 @@ function VotePage() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>🗳️ Cast Your Vote</h2>
-      <button onClick={handleLogout} style={{ float: 'right' }}>Logout</button>
-      <br /><br />
-      {message && <p><b>{message}</b></p>}
-      <ul>
-        {candidates.map(c => (
-          <li key={c._id} style={{ marginBottom: '10px' }}>
-            <b>{c.name}</b> ({c.party}) <br />
-            {hasVoted ? (
-              <i>You have already voted.</i>
-            ) : (
-              <button onClick={() => handleVote(c._id)}>Vote</button>
-            )}
-          </li>
-        ))}
-      </ul>
+    <div className="min-h-screen bg-gray-100 py-10 px-4">
+      <div className="max-w-3xl mx-auto bg-white shadow-md rounded p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">🗳️ Cast Your Vote</h2>
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700"
+          >
+            Logout
+          </button>
+        </div>
+
+        {message && (
+          <p className="text-center text-blue-700 font-medium mb-4">{message}</p>
+        )}
+
+        {hasVoted ? (
+          <div className="text-center text-green-600 font-semibold">
+            ✅ You have already voted.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {candidates.map(c => (
+              <div
+                key={c._id}
+                className="flex justify-between items-center border border-gray-300 p-4 rounded shadow-sm bg-gray-50"
+              >
+                <div>
+                  <p className="text-lg font-semibold">{c.name}</p>
+                  <p className="text-sm text-gray-600">{c.party}</p>
+                </div>
+                <button
+                  onClick={() => handleVote(c._id)}
+                  className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+                >
+                  Vote
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
