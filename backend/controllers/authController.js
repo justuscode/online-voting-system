@@ -4,20 +4,34 @@ import jwt from 'jsonwebtoken';
 
 const SECRET = process.env.JWT_SECRET || 'mysecretkey';
 
-// Register new voter
+// ✅ Register new voter
 export const register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, voterId } = req.body;
+
   try {
+    // Validate voterId: must be 8–10 digits
+    const idPattern = /^[0-9]{8,10}$/;
+    if (!idPattern.test(voterId)) {
+      return res.status(400).json({ error: 'Voter ID must be 8 to 10 digits.' });
+    }
+
+    // Check if email or voterId already exists
+    const existing = await Voter.findOne({ $or: [{ email }, { voterId }] });
+    if (existing) {
+      return res.status(400).json({ error: 'Email or Voter ID already registered' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const voter = new Voter({ name, email, password: hashedPassword });
+    const voter = new Voter({ name, email, password: hashedPassword, voterId });
     await voter.save();
+
     res.status(201).json({ message: 'Voter registered successfully', id: voter._id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Login voter
+// ✅ Login voter
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -34,7 +48,7 @@ export const login = async (req, res) => {
   }
 };
 
-// ✅ NEW: Return current voter's info (used to check if they have voted)
+// ✅ Get current voter info
 export const getMe = async (req, res) => {
   try {
     const voter = await Voter.findById(req.userId).select('-password');

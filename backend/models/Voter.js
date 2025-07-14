@@ -1,9 +1,31 @@
 import mongoose from 'mongoose';
 
 const voterSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String, unique: true },
-  password: String,
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  voterId: {
+    type: String,
+    required: true,
+    unique: true,
+    match: /^[0-9]{8,10}$/  // ✅ ensures 8–10 digit numbers only
+  },
+  hasVoted: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
