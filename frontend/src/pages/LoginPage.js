@@ -133,7 +133,7 @@ function AuthPage() {
         </form>
 
         <p className="text-center mt-4 text-sm text-gray-600">
-          {isRegistering ? 'Already have an account?' : 'New user?'}
+          {isRegistering ? 'Already a Voter?' : 'New Voter?'}
           <button onClick={toggleMode} className="text-blue-600 ml-2 underline">
             {isRegistering ? 'Login here' : 'Register here'}
           </button>
