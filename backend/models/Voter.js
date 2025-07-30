@@ -20,7 +20,7 @@ const voterSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    match: /^[0-9]{8,10}$/ // ✅ Enforce 8–10 digit numeric voter ID
+    match: /^[0-9]{8,10}$/
   },
   hasVoted: {
     type: Boolean,

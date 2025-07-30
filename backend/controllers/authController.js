@@ -9,13 +9,11 @@ export const register = async (req, res) => {
   const { name, email, password, voterId } = req.body;
 
   try {
-    // Validate voterId: must be 8–10 digits
     const idPattern = /^[0-9]{8,10}$/;
     if (!idPattern.test(voterId)) {
       return res.status(400).json({ error: 'Voter ID must be 8 to 10 digits.' });
     }
 
-    // Check if email or voterId already exists
     const existing = await Voter.findOne({ $or: [{ email }, { voterId }] });
     if (existing) {
       return res.status(400).json({ error: 'Email or Voter ID already registered' });
@@ -48,10 +46,10 @@ export const login = async (req, res) => {
   }
 };
 
-// ✅ Get current voter info
+// ✅ Get current voter info (FIXED)
 export const getMe = async (req, res) => {
   try {
-    const voter = await Voter.findById(req.userId).select('-password');
+    const voter = await Voter.findById(req.user.id).select('-password'); // ✅ FIX: use req.user.id
     if (!voter) return res.status(404).json({ error: 'User not found' });
     res.json({ email: voter.email, hasVoted: voter.hasVoted });
   } catch (err) {

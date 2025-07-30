@@ -1,39 +1,38 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import { Link, useLocation } from 'react-router-dom';
 
-const Navbar = () => {
-  const navigate = useNavigate();
-  const token = localStorage.getItem('token');
-  const user = token ? jwtDecode(token) : null;
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
-  };
+const Header = () => {
+  const location = useLocation();
+  const navLinkClass = (path) =>
+    location.pathname === path
+      ? 'text-white bg-blue-700 px-3 py-2 rounded-lg'
+      : 'text-blue-700 hover:text-white hover:bg-blue-500 px-3 py-2 rounded-lg transition';
 
   return (
-    <nav className="bg-blue-700 text-white px-4 py-3 shadow-md">
-      <div className="max-w-6xl mx-auto flex justify-between items-center">
-        <div className="font-bold text-xl">🗳️ Online Voting System</div>
-        <div className="flex gap-6 items-center">
-          <Link to="/vote" className="hover:text-gray-300">Vote</Link>
-          <Link to="/results" className="hover:text-gray-300">Results</Link>
-          {user?.role === 'admin' && (
-            <Link to="/admin/candidates" className="hover:text-gray-300">Admin</Link>
-          )}
-          {token && (
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 px-3 py-1 rounded"
-            >
-              Logout
-            </button>
-          )}
+    <header className="bg-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <Link to="/" className="text-2xl font-bold text-blue-700">
+          
+        </Link>
+
+        <nav className="space-x-4 hidden md:block">
+          <Link to="/" className={navLinkClass('/')}>Home</Link>
+          <Link to="/vote" className={navLinkClass('/vote')}>Vote</Link>
+          <Link to="/results" className={navLinkClass('/results')}>Results</Link>
+          <Link to="/admin/login" className={navLinkClass('/admin/login')}>Admin</Link>
+        </nav>
+
+        <div className="hidden md:block">
+          <Link to="/login" className="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800">
+            Sign In
+          </Link>
         </div>
+
+        {/* Mobile Hamburger (Optional) */}
+        {/* Add your hamburger/mobile menu here if needed */}
       </div>
-    </nav>
+    </header>
   );
 };
 
-export default Navbar;
+export default Header;
